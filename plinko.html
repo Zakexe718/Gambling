@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 Fictiv Casino - Plinko</title>
+<title>🎰 Nov'asino - Plinko</title>
 <link rel="stylesheet" href="style.css">
 
 <style>
@@ -179,6 +179,15 @@ h1 {
 
 .payout-info .warn { color: #e77; }
 .payout-info .good { color: #7e7; }
+
+@media (max-width: 480px) {
+  body { padding: 12px; }
+  h1 { font-size: 1.7em; }
+  .game-table { padding: 18px 14px; border-radius: 20px; }
+  .chips { flex-wrap: wrap; }
+  .chip { flex: 1 1 30%; }
+  .payout-info { font-size: 11px; gap: 8px; }
+}
 </style>
 </head>
 
@@ -187,7 +196,7 @@ h1 {
 <div class="container">
 
   <nav class="site-nav">
-    <a href="index.html" class="site-nav-logo">🎰 FICTIV CASINO</a>
+    <a href="index.html" class="site-nav-logo">🎰 NOV'ASINO</a>
     <div class="site-nav-links">
       <a href="index.html">Accueil</a>
       <a href="slot-machine.html">Machine à sous</a>
@@ -202,7 +211,7 @@ h1 {
   <div class="game-table">
 
     <div class="player-info">
-      <input type="text" id="pseudo" placeholder="NOM Prénom">
+      <div id="discordAuthWidget"></div>
     </div>
 
     <div class="result-display" id="result"></div>
@@ -231,6 +240,7 @@ h1 {
   </div>
 </div>
 
+<script src="discord-auth.js"></script>
 <script>
 // 🎰 Configuration
 const WEBHOOK_URL = "https://discord.com/api/webhooks/1469794145974620292/RXq214ATrOHYtkb1DagH6D11LkgAbePbJPFsWZ9JP21p0vE9f5Y2DNk7k0fVveM0mqPL";
@@ -342,8 +352,8 @@ function binIndexFromX(x) {
 
 // ⚪ Lâcher la bille (simulation physique simple)
 function dropBall() {
-  const pseudo = document.getElementById('pseudo').value.trim();
-  if (!pseudo) { alert('Entre un pseudo !'); return; }
+  const pseudo = getPseudo();
+  if (!pseudo) return;
   if (!selectedBet) { alert('Sélectionne une mise !'); return; }
   if (dropping) return;
 

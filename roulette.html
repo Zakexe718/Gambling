@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 Fictiv Casino - Roulette</title>
+<title>🎰 Nov'asino - Roulette</title>
 <link rel="stylesheet" href="style.css">
 
 <style>
@@ -384,6 +384,25 @@ h1 {
     grid-template-columns: repeat(6, 1fr);
   }
 }
+
+@media (max-width: 480px) {
+  body { padding: 12px; }
+  h1 { font-size: 1.7em; }
+  .wheel-container {
+    width: 220px;
+    height: 220px;
+  }
+  .betting-table { padding: 18px; border-radius: 16px; }
+  .chips { flex-wrap: wrap; }
+  .chip { flex: 1 1 30%; }
+  .number-grid { grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .number-bet { height: 38px; font-size: 13px; }
+  .bet-zones { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .bet-zone { padding: 16px 10px; min-height: 60px; }
+  .zone-label { font-size: 13px; }
+  .zone-payout { font-size: 11px; }
+  .payout-info { gap: 12px; padding: 10px; }
+}
 </style>
 </head>
 
@@ -392,7 +411,7 @@ h1 {
 <div class="container">
 
   <nav class="site-nav">
-    <a href="index.html" class="site-nav-logo">🎰 FICTIV CASINO</a>
+    <a href="index.html" class="site-nav-logo">🎰 NOV'ASINO</a>
     <div class="site-nav-links">
       <a href="index.html">Accueil</a>
       <a href="slot-machine.html">Machine à sous</a>
@@ -415,9 +434,9 @@ h1 {
   <!-- TABLEAU DE JEU -->
   <div class="betting-table">
     
-    <!-- INFO JOUEUR -->
+    <!-- CONNEXION DISCORD -->
     <div class="player-info">
-      <input type="text" id="pseudo" placeholder="NOM Prénom">
+      <div id="discordAuthWidget"></div>
     </div>
 
     <!-- RÉSULTAT -->
@@ -476,6 +495,7 @@ h1 {
   </div>
 </div>
 
+<script src="discord-auth.js"></script>
 <script>
 // Configuration
 const WEBHOOK_URL = "https://discord.com/api/webhooks/1469794145974620292/RXq214ATrOHYtkb1DagH6D11LkgAbePbJPFsWZ9JP21p0vE9f5Y2DNk7k0fVveM0mqPL";
@@ -639,11 +659,8 @@ function toggleBet(zone) {
 
 // Lancer la roulette
 function spin() {
-  const pseudo = document.getElementById('pseudo').value.trim();
-  if (!pseudo) {
-    alert('Entre un pseudo !');
-    return;
-  }
+  const pseudo = getPseudo();
+  if (!pseudo) return;
   
   const totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
   if (totalBet === 0) {

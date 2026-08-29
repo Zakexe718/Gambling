@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎰 Fictiv Casino - Machine à sous</title>
+<title>🎰 Nov'asino</title>
 <link rel="stylesheet" href="style.css">
 
 <style>
@@ -15,7 +15,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 20px 0;
+  padding: 20px 16px;
   font-family: 'Segoe UI', sans-serif;
 }
 
@@ -24,7 +24,9 @@ body {
   background: linear-gradient(145deg, #111, #1a1a1a);
   padding: 25px;
   border-radius: 20px;
-  width: 460px;
+  width: 100%;
+  max-width: 460px;
+  box-sizing: border-box;
   color: gold;
   box-shadow: 0 0 30px rgba(255,215,0,0.25);
 }
@@ -45,7 +47,8 @@ input {
 
 .reels {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 8px;
   margin: 20px 0;
 }
 
@@ -53,9 +56,11 @@ input {
   background: #000;
   border: 2px solid gold;
   border-radius: 10px;
-  width: 65px;
-  height: 65px;
-  font-size: 32px;
+  flex: 1;
+  max-width: 65px;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  font-size: clamp(18px, 6vw, 32px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,6 +130,41 @@ input {
 .lever.pull {
   transform: translateY(-50%) rotate(10deg);
 }
+
+/* 📱 Adaptation mobile : la manette passe sous la machine */
+@media (max-width: 560px) {
+  .machine {
+    padding: 20px 16px 55px;
+  }
+
+  h1 {
+    font-size: 1.5em;
+  }
+
+  .lever {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 72px;
+    height: 26px;
+    margin: 20px auto 0;
+    border-radius: 30px;
+  }
+
+  .lever::after {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 38px;
+    height: 38px;
+  }
+
+  .lever.pull {
+    transform: none;
+    background: #555;
+  }
+}
 </style>
 </head>
 
@@ -132,7 +172,7 @@ input {
 
 <div class="site-nav-wrap">
   <nav class="site-nav">
-    <a href="index.html" class="site-nav-logo">🎰 FICTIV CASINO</a>
+    <a href="index.html" class="site-nav-logo">🎰 NOV'ASINO</a>
     <div class="site-nav-links">
       <a href="index.html">Accueil</a>
       <a href="slot-machine.html" class="is-active">Machine à sous</a>
@@ -146,7 +186,7 @@ input {
 <div class="machine">
   <h1>🎰 MACHINE A SOUS 🎰</h1>
 
-  <input id="pseudo" placeholder="NOM Prénom">
+  <div id="discordAuthWidget" class="player-info"></div>
 
   <div class="reels">
     <div class="reel">❔</div>
@@ -167,6 +207,7 @@ input {
   <div class="lever" onclick="pullLever(this)"></div>
 </div>
 
+<script src="discord-auth.js"></script>
 <script>
 const reels = document.querySelectorAll(".reel");
 
@@ -220,8 +261,8 @@ function selectBet(amount, btn) {
 function pullLever(el) {
   if (cooldown) return;
 
-  const pseudo = document.getElementById("pseudo").value.trim();
-  if (!pseudo) return alert("Entre un pseudo");
+  const pseudo = getPseudo();
+  if (!pseudo) return;
   if (!selectedBet) return alert("Sélectionne une mise");
 
   cooldown = true;

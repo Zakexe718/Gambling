@@ -70,6 +70,23 @@
   border-color: var(--gold);
 }
 
+@media (max-width: 560px) {
+  .site-nav {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    padding: 14px;
+  }
+  .site-nav-links {
+    justify-content: center;
+    gap: 4px;
+  }
+  .site-nav-links a {
+    font-size: 0.78rem;
+    padding: 7px 10px;
+  }
+}
+
 /* ---------------------------------------------------------------------- */
 /* Bandeau "argent fictif"                                                 */
 /* ---------------------------------------------------------------------- */
@@ -89,6 +106,74 @@
 
 .fake-money-banner strong {
   color: var(--gold);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Connexion Discord                                                        */
+/* ---------------------------------------------------------------------- */
+
+.discord-login-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  background: #5865F2;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.discord-login-btn:hover {
+  background: #4752c4;
+  transform: translateY(-1px);
+}
+
+.discord-user-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(88, 101, 242, 0.12);
+  border: 1px solid rgba(88, 101, 242, 0.4);
+  color: #eae4d3;
+  font-size: 14px;
+}
+
+.discord-user-badge img {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+
+.discord-avatar-fallback {
+  font-size: 18px;
+}
+
+.discord-user-badge strong {
+  color: #fff;
+}
+
+.discord-logout-btn {
+  border: none;
+  background: transparent;
+  color: #f4a4a4;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+}
+
+.discord-logout-btn:hover {
+  color: #ff6b6b;
 }
 
 /* ---------------------------------------------------------------------- */
