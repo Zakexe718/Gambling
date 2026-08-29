@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 Fictiv Casino - Blackjack</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0b0b0b;
+  font-family: 'Segoe UI', sans-serif;
+  color: gold;
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+/* 🎴 TABLE DE JEU */
+.game-table {
+  background: linear-gradient(145deg, #1a4d2e, #0d3b1f);
+  padding: 40px;
+  border-radius: 30px;
+  margin: 30px auto;
+  box-shadow: 0 0 50px rgba(255,215,0,0.3),
+              inset 0 0 30px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+/* INFO JOUEUR */
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  gap: 15px;
+}
+
+.player-info input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  color: #000;
+  font-size: 16px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.player-info input::placeholder {
+  color: #999;
+}
+
+/* PARIS */
+.chips {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.chip {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #333;
+  color: gold;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.chip:hover {
+  background: #444;
+}
+
+.chip.active {
+  background: gold;
+  color: black;
+}
+
+/* ZONE DE CARTES */
+.card-area {
+  margin-bottom: 40px;
+}
+
+.dealer-area, .player-area {
+  margin-bottom: 30px;
+}
+
+.area-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.score {
+  font-size: 24px;
+  color: gold;
+  text-shadow: 0 0 10px rgba(255,215,0,0.6);
+}
+
+.cards {
+  display: flex;
+  gap: 15px;
+  min-height: 140px;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 90px;
+  height: 130px;
+  background: white;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  position: relative;
+  animation: dealCard 0.3s ease-out;
+}
+
+@keyframes dealCard {
+  from {
+    transform: translateY(-50px) rotateY(90deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) rotateY(0);
+    opacity: 1;
+  }
+}
+
+.card.red {
+  color: #e74c3c;
+}
+
+.card.black {
+  color: #2c2c2c;
+}
+
+.card.hidden {
+  background: linear-gradient(145deg, #c0392b, #e74c3c);
+  color: transparent;
+}
+
+.card.hidden::after {
+  content: '🎰';
+  position: absolute;
+  font-size: 40px;
+  color: gold;
+}
+
+.card-value {
+  font-size: 28px;
+}
+
+.card-suit {
+  font-size: 36px;
+  margin-top: -5px;
+}
+
+/* CONTRÔLES */
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn {
+  flex: 1;
+  padding: 15px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-deal {
+  background: linear-gradient(145deg, gold, #daa520);
+  color: #000;
+}
+
+.btn-deal:hover:not(:disabled) {
+  box-shadow: 0 0 20px rgba(255,215,0,0.6);
+  transform: translateY(-2px);
+}
+
+.btn-hit {
+  background: #2ecc71;
+  color: white;
+}
+
+.btn-hit:hover:not(:disabled) {
+  background: #27ae60;
+  transform: translateY(-2px);
+}
+
+.btn-stand {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-stand:hover:not(:disabled) {
+  background: #c0392b;
+  transform: translateY(-2px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* RÉSULTAT */
+.result-display {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 24px;
+  font-weight: bold;
+  min-height: 40px;
+}
+
+.result-display.win {
+  color: #2ecc71;
+  text-shadow: 0 0 10px #2ecc71;
+}
+
+.result-display.lose {
+  color: #e74c3c;
+}
+
+.result-display.push {
+  color: gold;
+}
+
+/* INFO MISE */
+.bet-info {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 18px;
+}
+
+/* INFO GAINS */
+.payout-info {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 215, 0, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.payout-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.payout-label {
+  color: #aaa;
+  font-size: 13px;
+}
+
+.payout-value {
+  color: gold;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+  .card {
+    width: 70px;
+    height: 100px;
+    font-size: 24px;
+  }
+  
+  .card-value {
+    font-size: 20px;
+  }
+  
+  .card-suit {
+    font-size: 28px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <nav class="site-nav">
+    <a href="index.html" class="site-nav-logo">🎰 FICTIV CASINO</a>
+    <div class="site-nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="slot-machine.html">Machine à sous</a>
+      <a href="blackjack.html" class="is-active">Blackjack</a>
+      <a href="roulette.html">Roulette</a>
+      <a href="plinko.html">Plinko</a>
+    </div>
+  </nav>
+
+  <h1>🎴 BLACKJACK 🎴</h1>
+
+  <div class="game-table">
+    
+    <!-- INFO JOUEUR -->
+    <div class="player-info">
+      <input type="text" id="pseudo" placeholder="NOM Prénom">
+    </div>
+
+    <!-- RÉSULTAT -->
+    <div class="result-display" id="result"></div>
+
+    <!-- INFO MISE -->
+    <div class="bet-info" id="betInfo"></div>
+
+    <!-- PARIS -->
+    <div class="chips" id="chipsContainer">
+      <button class="chip" onclick="selectChip(20, this)">20€</button>
+      <button class="chip" onclick="selectChip(50, this)">50€</button>
+      <button class="chip" onclick="selectChip(100, this)">100€</button>
+    </div>
+
+    <!-- ZONE CROUPIER -->
+    <div class="card-area dealer-area">
+      <div class="area-title">
+        <span>🎩 CROUPIER</span>
+        <span class="score" id="dealerScore">-</span>
+      </div>
+      <div class="cards" id="dealerCards"></div>
+    </div>
+
+    <!-- ZONE JOUEUR -->
+    <div class="card-area player-area">
+      <div class="area-title">
+        <span>👤 JOUEUR</span>
+        <span class="score" id="playerScore">-</span>
+      </div>
+      <div class="cards" id="playerCards"></div>
+    </div>
+
+    <!-- CONTRÔLES -->
+    <div class="controls">
+      <button class="btn btn-deal" id="dealBtn" onclick="deal()">🎴 DISTRIBUER</button>
+      <button class="btn btn-hit" id="hitBtn" onclick="hit()" disabled>👆 CARTE</button>
+      <button class="btn btn-stand" id="standBtn" onclick="stand()" disabled>✋ RESTER</button>
+    </div>
+
+    <!-- INFO GAINS -->
+    <div class="payout-info">
+      <div class="payout-item">
+        <span class="payout-label">Blackjack (21):</span>
+        <span class="payout-value">x2</span>
+      </div>
+      <div class="payout-item">
+        <span class="payout-label">Victoire:</span>
+        <span class="payout-value">x1.25</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// 🎰 Configuration
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1469794145974620292/RXq214ATrOHYtkb1DagH6D11LkgAbePbJPFsWZ9JP21p0vE9f5Y2DNk7k0fVveM0mqPL";
+
+// Symboles des cartes
+const suits = ['♠', '♥', '♦', '♣'];
+const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+let deck = [];
+let playerHand = [];
+let dealerHand = [];
+let selectedBet = null;
+let gameInProgress = false;
+
+// 💰 Sélectionner une mise
+function selectChip(amount, element) {
+  if (gameInProgress) return;
+  
+  if (selectedBet === amount && element.classList.contains('active')) {
+    selectedBet = null;
+    element.classList.remove('active');
+  } else {
+    selectedBet = amount;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    element.classList.add('active');
+  }
+}
+
+// 🎴 Créer un jeu de cartes
+function createDeck() {
+  deck = [];
+  for (let suit of suits) {
+    for (let value of values) {
+      deck.push({ value, suit });
+    }
+  }
+  // Mélanger
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+}
+
+// 🎯 Tirer une carte
+function drawCard() {
+  return deck.pop();
+}
+
+// 📊 Calculer le score
+function calculateScore(hand) {
+  let score = 0;
+  let aces = 0;
+  
+  for (let card of hand) {
+    if (card.value === 'A') {
+      aces++;
+      score += 11;
+    } else if (['J', 'Q', 'K'].includes(card.value)) {
+      score += 10;
+    } else {
+      score += parseInt(card.value);
+    }
+  }
+  
+  // Ajuster les As si nécessaire
+  while (score > 21 && aces > 0) {
+    score -= 10;
+    aces--;
+  }
+  
+  return score;
+}
+
+// 🎨 Afficher une carte
+function displayCard(card, container, hidden = false) {
+  const cardDiv = document.createElement('div');
+  cardDiv.className = `card ${['♥', '♦'].includes(card.suit) ? 'red' : 'black'}`;
+  
+  if (hidden) {
+    cardDiv.classList.add('hidden');
+  } else {
+    cardDiv.innerHTML = `
+      <div class="card-value">${card.value}</div>
+      <div class="card-suit">${card.suit}</div>
+    `;
+  }
+  
+  container.appendChild(cardDiv);
+}
+
+// 🔄 Mettre à jour l'affichage
+function updateDisplay(hideDealerCard = false) {
+  const dealerCardsDiv = document.getElementById('dealerCards');
+  const playerCardsDiv = document.getElementById('playerCards');
+  
+  // Effacer
+  dealerCardsDiv.innerHTML = '';
+  playerCardsDiv.innerHTML = '';
+  
+  // Afficher cartes croupier
+  dealerHand.forEach((card, index) => {
+    displayCard(card, dealerCardsDiv, hideDealerCard && index === 1);
+  });
+  
+  // Afficher cartes joueur
+  playerHand.forEach(card => {
+    displayCard(card, playerCardsDiv);
+  });
+  
+  // Scores
+  const playerScore = calculateScore(playerHand);
+  document.getElementById('playerScore').textContent = playerScore;
+  
+  if (hideDealerCard) {
+    const firstCardValue = dealerHand[0].value === 'A' ? 11 : 
+                          ['J', 'Q', 'K'].includes(dealerHand[0].value) ? 10 : 
+                          parseInt(dealerHand[0].value);
+    document.getElementById('dealerScore').textContent = firstCardValue + ' + ?';
+  } else {
+    document.getElementById('dealerScore').textContent = calculateScore(dealerHand);
+  }
+}
+
+// 🎴 Distribuer
+function deal() {
+  const pseudo = document.getElementById('pseudo').value.trim();
+  if (!pseudo) {
+    alert('Entre un pseudo !');
+    return;
+  }
+  
+  if (!selectedBet) {
+    alert('Sélectionne une mise !');
+    return;
+  }
+  
+  // Réinitialiser
+  document.getElementById('result').textContent = '';
+  document.getElementById('betInfo').textContent = `Mise: ${selectedBet}€`;
+  
+  createDeck();
+  playerHand = [];
+  dealerHand = [];
+  gameInProgress = true;
+  
+  // Distribuer 2 cartes à chacun
+  playerHand.push(drawCard());
+  dealerHand.push(drawCard());
+  playerHand.push(drawCard());
+  dealerHand.push(drawCard());
+  
+  updateDisplay(true);
+  
+  // Vérifier blackjack
+  const playerScore = calculateScore(playerHand);
+  const dealerScore = calculateScore(dealerHand);
+  
+  if (playerScore === 21) {
+    if (dealerScore === 21) {
+      endGame('push', 'Égalité - Blackjack des deux côtés !');
+    } else {
+      endGame('blackjack', '🎉 BLACKJACK ! 🎉');
+    }
+  } else {
+    // Activer les boutons
+    document.getElementById('dealBtn').disabled = true;
+    document.getElementById('hitBtn').disabled = false;
+    document.getElementById('standBtn').disabled = false;
+  }
+}
+
+// 👆 Tirer une carte
+function hit() {
+  playerHand.push(drawCard());
+  updateDisplay(true);
+  
+  const playerScore = calculateScore(playerHand);
+  
+  if (playerScore > 21) {
+    endGame('bust', '💥 Bust ! Vous avez dépassé 21');
+  } else if (playerScore === 21) {
+    endGame('blackjack', '🎉 BLACKJACK ! 🎉');
+  }
+}
+
+// ✋ Rester
+function stand() {
+  // Révéler la carte cachée du croupier
+  updateDisplay(false);
+  
+  // Le croupier tire jusqu'à 17
+  setTimeout(() => {
+    dealerPlay();
+  }, 500);
+}
+
+// 🎩 Tour du croupier
+function dealerPlay() {
+  let dealerScore = calculateScore(dealerHand);
+  
+  if (dealerScore < 17) {
+    dealerHand.push(drawCard());
+    updateDisplay(false);
+    setTimeout(dealerPlay, 800);
+  } else {
+    // Déterminer le gagnant
+    determineWinner();
+  }
+}
+
+// 🏆 Déterminer le gagnant
+function determineWinner() {
+  const playerScore = calculateScore(playerHand);
+  const dealerScore = calculateScore(dealerHand);
+  
+  if (dealerScore > 21) {
+    endGame('win', `Le croupier a dépassé 21 ! Vous gagnez !`);
+  } else if (playerScore > dealerScore) {
+    endGame('win', `Vous gagnez ${playerScore} contre ${dealerScore} !`);
+  } else if (playerScore < dealerScore) {
+    endGame('lose', `Vous perdez ${playerScore} contre ${dealerScore} !`);
+  } else {
+    endGame('push', `Égalité à ${playerScore} !`);
+  }
+}
+
+// 🎯 Fin de partie
+function endGame(result, message) {
+  gameInProgress = false;
+  
+  const resultDiv = document.getElementById('result');
+  const pseudo = document.getElementById('pseudo').value.trim();
+  
+  let totalWin = 0;
+  let profit = 0;
+  let multiplier = 0;
+  
+  if (result === 'blackjack') {
+    // Blackjack = x2
+    multiplier = 2;
+    totalWin = selectedBet * multiplier;
+    profit = totalWin - selectedBet;
+    resultDiv.className = 'result-display win';
+    resultDiv.textContent = `${message} - Gain: ${totalWin}€ (x${multiplier}) ✨`;
+  } else if (result === 'win') {
+    // Victoire normale = x1.25
+    multiplier = 1.25;
+    totalWin = selectedBet * multiplier;
+    profit = totalWin - selectedBet;
+    resultDiv.className = 'result-display win';
+    resultDiv.textContent = `${message} - Gain: ${totalWin}€ (x${multiplier}) ✨`;
+  } else if (result === 'push') {
+    totalWin = selectedBet;
+    profit = 0;
+    resultDiv.className = 'result-display push';
+    resultDiv.textContent = `${message} - Mise remboursée: ${totalWin}€ 🤝`;
+  } else {
+    totalWin = 0;
+    profit = -selectedBet;
+    resultDiv.className = 'result-display lose';
+    resultDiv.textContent = `${message} - Perdu: ${selectedBet}€ ❌`;
+  }
+  
+  // Révéler toutes les cartes
+  updateDisplay(false);
+  
+  // Discord
+  if (WEBHOOK_URL) {
+    const dette = profit > 0 ? `Total : -${profit}€` : 
+                  `Profit : ${Math.abs(profit)}€`;
+    
+    fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: `🎴 **BLACKJACK - ${pseudo}**
+Résultat : ${message}
+Mise : ${selectedBet}€
+Gain : ${totalWin}€
+${dette}
+==========`
+      })
+    });
+  }
+  
+  // Réactiver le bouton distribuer
+  document.getElementById('dealBtn').disabled = false;
+  document.getElementById('hitBtn').disabled = true;
+  document.getElementById('standBtn').disabled = true;
+}
+
+// 🚀 Initialisation
+document.querySelectorAll('.chip')[0].classList.add('active');
+selectedBet = 20;
+</script>
+
+</body>
+</html>

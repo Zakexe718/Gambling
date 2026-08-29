@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 Fictiv Casino - Roulette</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0b0b0b;
+  font-family: 'Segoe UI', sans-serif;
+  color: gold;
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+/* 🎡 ROUE DE ROULETTE */
+.wheel-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  margin: 30px auto;
+}
+
+.wheel-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+  box-shadow: 0 0 50px rgba(255,215,0,0.3),
+              inset 0 0 30px rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wheel {
+  position: relative;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  background: #1a1a1a;
+  transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+  overflow: hidden;
+  transform: rotate(0deg);
+}
+
+.wheel:hover {
+  box-shadow: 0 0 30px rgba(255,215,0,0.5);
+}
+
+/* Créer les segments de la roue */
+.wheel-segment {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  left: 50%;
+  top: 50%;
+  transform-origin: 0% 0%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 50%;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.9);
+}
+
+.wheel-segment span {
+  display: block;
+  margin-left: 10px;
+}
+
+.segment-red {
+  background: linear-gradient(90deg, #e74c3c 0%, #e74c3c 100%);
+}
+
+.segment-black {
+  background: linear-gradient(90deg, #2c2c2c 0%, #2c2c2c 100%);
+}
+
+.segment-green {
+  background: linear-gradient(90deg, #2ecc71 0%, #2ecc71 100%);
+}
+
+.wheel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, gold, #daa520);
+  box-shadow: 0 0 20px rgba(255,215,0,0.6);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #000;
+}
+
+.ball-indicator {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 25px solid white;
+  z-index: 15;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
+}
+
+/* 📊 TABLEAU DE MISE */
+.betting-table {
+  background: linear-gradient(145deg, #111, #1a1a1a);
+  padding: 30px;
+  border-radius: 20px;
+  margin: 30px auto;
+  box-shadow: 0 0 30px rgba(255,215,0,0.25);
+}
+
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.player-info input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* PARIS */
+.chips {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.chip {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #333;
+  color: gold;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.chip:hover {
+  background: #444;
+}
+
+.chip.active {
+  background: gold;
+  color: black;
+}
+
+/* ZONES DE MISE */
+.bet-zones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.bet-zone {
+  padding: 25px 15px;
+  border-radius: 10px;
+  border: 3px solid gold;
+  background: #1a1a1a;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  overflow: visible;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.bet-zone:hover {
+  background: #2a2a2a;
+  box-shadow: 0 0 15px rgba(255,215,0,0.4);
+}
+
+.bet-zone.has-bet {
+  background: #2a4a2a;
+  border-color: #2ecc71;
+}
+
+.bet-zone .bet-amount {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: gold;
+  color: #000;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 35px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  z-index: 10;
+}
+
+.zone-label {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.zone-payout {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 5px;
+}
+
+.red { color: #e74c3c; }
+.black { color: #333; }
+.green { color: #2ecc71; }
+
+/* GRILLE NUMÉROS */
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.number-bet {
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  border: 3px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  font-size: 16px;
+}
+
+.number-bet:hover {
+  transform: scale(1.05);
+}
+
+.number-bet.red-num {
+  background: #e74c3c;
+  border-color: #c0392b;
+  color: white;
+}
+
+.number-bet.black-num {
+  background: #2c2c2c;
+  border-color: #1a1a1a;
+  color: white;
+}
+
+.number-bet.green-num {
+  background: #2ecc71;
+  border-color: #27ae60;
+  color: white;
+}
+
+.number-bet.has-bet {
+  box-shadow: 0 0 15px gold;
+}
+
+.bet-amount {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: gold;
+  color: #000;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* RÉSULTATS */
+.result-display {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 24px;
+  font-weight: bold;
+  min-height: 40px;
+}
+
+.result-display.win {
+  color: #2ecc71;
+  text-shadow: 0 0 10px #2ecc71;
+}
+
+.result-display.lose {
+  color: #e74c3c;
+}
+
+/* INFO GAINS NUMÉROS */
+.payout-info {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 215, 0, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.payout-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.payout-label {
+  color: #aaa;
+  font-size: 14px;
+}
+
+.payout-value {
+  color: gold;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .wheel-container {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .bet-zones {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .number-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <nav class="site-nav">
+    <a href="index.html" class="site-nav-logo">🎰 FICTIV CASINO</a>
+    <div class="site-nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="slot-machine.html">Machine à sous</a>
+      <a href="blackjack.html">Blackjack</a>
+      <a href="roulette.html" class="is-active">Roulette</a>
+      <a href="plinko.html">Plinko</a>
+    </div>
+  </nav>
+
+  <h1>🎡 ROULETTE 🎡</h1>
+
+  <!-- ROUE -->
+  <div class="wheel-container">
+    <div class="wheel-outer">
+      <div class="wheel" id="wheel" onclick="spin()" style="cursor: pointer;"></div>
+      <div class="ball-indicator"></div>
+    </div>
+  </div>
+
+  <!-- TABLEAU DE JEU -->
+  <div class="betting-table">
+    
+    <!-- INFO JOUEUR -->
+    <div class="player-info">
+      <input type="text" id="pseudo" placeholder="NOM Prénom">
+    </div>
+
+    <!-- RÉSULTAT -->
+    <div class="result-display" id="result"></div>
+
+    <!-- PARIS -->
+    <div class="chips">
+      <button class="chip" onclick="selectChip(20, this)">20€</button>
+      <button class="chip" onclick="selectChip(50, this)">50€</button>
+      <button class="chip" onclick="selectChip(100, this)">100€</button>
+    </div>
+
+    <!-- GRILLE DES NUMÉROS -->
+    <div class="number-grid" id="numberGrid"></div>
+
+    <!-- ZONES DE MISE SIMPLES -->
+    <div class="bet-zones">
+      <div class="bet-zone" onclick="toggleBet('rouge')" data-zone="rouge">
+        <div class="zone-label red">🔴 ROUGE</div>
+        <div class="zone-payout">Gain: x1.25</div>
+      </div>
+      <div class="bet-zone" onclick="toggleBet('noir')" data-zone="noir">
+        <div class="zone-label" style="color: #fff">⚫ NOIR</div>
+        <div class="zone-payout">Gain: x1.25</div>
+      </div>
+      <div class="bet-zone" onclick="toggleBet('pair')" data-zone="pair">
+        <div class="zone-label">PAIR</div>
+        <div class="zone-payout">Gain: x1.25</div>
+      </div>
+      <div class="bet-zone" onclick="toggleBet('impair')" data-zone="impair">
+        <div class="zone-label">IMPAIR</div>
+        <div class="zone-payout">Gain: x1.25</div>
+      </div>
+      <div class="bet-zone" onclick="toggleBet('1-18')" data-zone="1-18">
+        <div class="zone-label">1-18</div>
+        <div class="zone-payout">Gain: x1.25</div>
+      </div>
+      <div class="bet-zone" onclick="toggleBet('19-36')" data-zone="19-36">
+        <div class="zone-label">19-36</div>
+        <div class="zone-payout">Gain: x1.25</div>
+      </div>
+    </div>
+
+    <!-- INFO GAINS NUMÉROS -->
+    <div class="payout-info">
+      <div class="payout-item">
+        <span class="payout-label">Numéros 1-36:</span>
+        <span class="payout-value">x2</span>
+      </div>
+      <div class="payout-item">
+        <span class="payout-label">Zéro (0):</span>
+        <span class="payout-value">x4</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Configuration
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1469794145974620292/RXq214ATrOHYtkb1DagH6D11LkgAbePbJPFsWZ9JP21p0vE9f5Y2DNk7k0fVveM0mqPL";
+
+// Numéros de la roulette européenne (ordre réel)
+const wheelNumbers = [
+  0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 
+  5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26
+];
+
+// Numéros rouges
+const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+
+let selectedChipValue = 20;
+let bets = {};
+let isSpinning = false;
+
+// Créer la roue visuelle
+function createWheel() {
+  const wheel = document.getElementById('wheel');
+  const anglePerSegment = 360 / wheelNumbers.length;
+  
+  // Créer un SVG pour la roue
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  svg.setAttribute('viewBox', '0 0 400 400');
+  svg.style.position = 'absolute';
+  svg.style.top = '0';
+  svg.style.left = '0';
+  svg.style.width = '100%';
+  svg.style.height = '100%';
+  
+  const centerX = 200;
+  const centerY = 200;
+  const radius = 180;
+  const innerRadius = 130;
+  
+  wheelNumbers.forEach((num, index) => {
+    const startAngle = (index * anglePerSegment - 90 - anglePerSegment / 2) * (Math.PI / 180);
+    const endAngle = ((index + 1) * anglePerSegment - 90 - anglePerSegment / 2) * (Math.PI / 180);
+    
+    // Calculer les points du segment
+    const x1 = centerX + Math.cos(startAngle) * innerRadius;
+    const y1 = centerY + Math.sin(startAngle) * innerRadius;
+    const x2 = centerX + Math.cos(startAngle) * radius;
+    const y2 = centerY + Math.sin(startAngle) * radius;
+    const x3 = centerX + Math.cos(endAngle) * radius;
+    const y3 = centerY + Math.sin(endAngle) * radius;
+    const x4 = centerX + Math.cos(endAngle) * innerRadius;
+    const y4 = centerY + Math.sin(endAngle) * innerRadius;
+    
+    // Créer le path du segment
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const d = `M ${x1} ${y1} L ${x2} ${y2} A ${radius} ${radius} 0 0 1 ${x3} ${y3} L ${x4} ${y4} A ${innerRadius} ${innerRadius} 0 0 0 ${x1} ${y1} Z`;
+    path.setAttribute('d', d);
+    
+    // Couleur du segment
+    if (num === 0) {
+      path.setAttribute('fill', '#2ecc71');
+    } else if (redNumbers.includes(num)) {
+      path.setAttribute('fill', '#e74c3c');
+    } else {
+      path.setAttribute('fill', '#2c2c2c');
+    }
+    
+    path.setAttribute('stroke', '#1a1a1a');
+    path.setAttribute('stroke-width', '2');
+    path.dataset.number = num;
+    
+    svg.appendChild(path);
+    
+    // Ajouter le texte du numéro
+    const middleAngle = (startAngle + endAngle) / 2;
+    const textRadius = radius - 25;
+    const textX = centerX + Math.cos(middleAngle) * textRadius;
+    const textY = centerY + Math.sin(middleAngle) * textRadius;
+    
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', textX);
+    text.setAttribute('y', textY);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('fill', 'white');
+    text.setAttribute('font-size', '16');
+    text.setAttribute('font-weight', 'bold');
+    text.setAttribute('style', 'text-shadow: 2px 2px 4px rgba(0,0,0,0.9); pointer-events: none;');
+    text.textContent = num;
+    
+    svg.appendChild(text);
+  });
+  
+  wheel.appendChild(svg);
+  
+  // Ajouter le centre après
+  const center = document.createElement('div');
+  center.className = 'wheel-center';
+  center.textContent = '🎯';
+  wheel.appendChild(center);
+}
+
+// Créer la grille de numéros
+function createNumberGrid() {
+  const grid = document.getElementById('numberGrid');
+  
+  // Ajouter le 0
+  const zero = document.createElement('div');
+  zero.className = 'number-bet green-num';
+  zero.textContent = '0';
+  zero.style.gridColumn = 'span 3';
+  zero.onclick = () => toggleBet(0);
+  zero.dataset.number = '0';
+  grid.appendChild(zero);
+  
+  // Ajouter les numéros 1-36
+  for (let i = 1; i <= 36; i++) {
+    const numBtn = document.createElement('div');
+    numBtn.className = `number-bet ${redNumbers.includes(i) ? 'red-num' : 'black-num'}`;
+    numBtn.textContent = i;
+    numBtn.onclick = () => toggleBet(i);
+    numBtn.dataset.number = i;
+    grid.appendChild(numBtn);
+  }
+}
+
+// Sélectionner un pari
+function selectChip(value, element) {
+  // Si on clique sur le pari déjà sélectionné, on le désélectionne
+  if (selectedChipValue === value && element.classList.contains('active')) {
+    selectedChipValue = null;
+    element.classList.remove('active');
+  } else {
+    selectedChipValue = value;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    element.classList.add('active');
+  }
+}
+
+// Basculer une mise (ajouter ou retirer)
+function toggleBet(zone) {
+  if (isSpinning) return;
+  if (!selectedChipValue) {
+    alert('Sélectionne d\'abord un montant de pari !');
+    return;
+  }
+  
+  if (!bets[zone]) {
+    bets[zone] = 0;
+  }
+  
+  // Si la zone a déjà cette mise exacte, on la retire
+  if (bets[zone] === selectedChipValue) {
+    delete bets[zone];
+  } else {
+    // Sinon on met à jour avec le nouveau montant
+    bets[zone] = selectedChipValue;
+  }
+  
+  updateDisplay();
+}
+
+// Lancer la roulette
+function spin() {
+  const pseudo = document.getElementById('pseudo').value.trim();
+  if (!pseudo) {
+    alert('Entre un pseudo !');
+    return;
+  }
+  
+  const totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
+  if (totalBet === 0) {
+    alert('Place au moins une mise !');
+    return;
+  }
+  
+  isSpinning = true;
+  document.getElementById('result').textContent = '🎲 La roue tourne...';
+  
+  // Sélectionner un numéro aléatoire
+  const winningNumber = wheelNumbers[Math.floor(Math.random() * wheelNumbers.length)];
+  const winningIndex = wheelNumbers.indexOf(winningNumber);
+  
+  // Calculer la rotation
+  const degreesPerNumber = 360 / wheelNumbers.length; // 9.73° par segment
+  
+  // Récupérer la rotation actuelle de la roue
+  const wheel = document.getElementById('wheel');
+  const currentRotation = wheel.style.transform ? 
+    parseFloat(wheel.style.transform.replace('rotate(', '').replace('deg)', '')) : 0;
+  
+  // Normaliser la rotation actuelle entre 0 et 360°
+  const normalizedCurrentRotation = ((currentRotation % 360) + 360) % 360;
+  
+  // Dans le SVG, les segments sont décalés de -anglePerSegment/2 par rapport à -90°
+  // Le milieu du segment gagnant est à : -90 + (index * degreesPerNumber)
+  // La flèche (indicateur) est en haut à 270° (position 12h en coordonnées SVG)
+  
+  const segmentMiddleAngle = -90 + (winningIndex * degreesPerNumber);
+  // Normaliser l'angle du segment
+  const normalizedSegmentAngle = ((segmentMiddleAngle % 360) + 360) % 360;
+  
+  // Calculer la rotation nécessaire depuis la position actuelle vers le segment cible
+  let rotationNeeded = (270 - normalizedSegmentAngle - normalizedCurrentRotation) % 360;
+  if (rotationNeeded < 0) rotationNeeded += 360;
+  
+  // Partir de la position actuelle + 8 tours complets + rotation vers la cible
+  const finalRotation = currentRotation + 2880 + rotationNeeded;
+
+  // Appliquer la rotation
+  wheel.style.transform = `rotate(${finalRotation}deg)`;
+
+  
+  // Attendre la fin de l'animation
+  setTimeout(() => {
+    finishSpin(winningNumber, pseudo, totalBet);
+  }, 4000);
+}
+
+let win = 0;
+let totalWin = 0;
+
+// Terminer le tour
+function finishSpin(winningNumber, pseudo, totalBet) {
+
+  totalWin = 0;
+
+  for (let [zone, amount] of Object.entries(bets)) {
+
+    win = 0; 
+
+    // Pari sur numéro
+    if (!isNaN(zone)) {
+      const betNumber = parseInt(zone);
+
+      if (betNumber === winningNumber) {
+        win = betNumber === 0 ? amount * 4 : amount * 2;
+      }
+    }
+
+    // Rouge
+    if (zone === 'rouge' && redNumbers.includes(winningNumber)) {
+      win = amount * 1.25;
+    }
+
+    // Noir
+    if (zone === 'noir' && !redNumbers.includes(winningNumber) && winningNumber !== 0) {
+      win = amount * 1.25;
+    }
+
+    // Pair
+    if (zone === 'pair' && winningNumber !== 0 && winningNumber % 2 === 0) {
+      win = amount * 1.25;
+    }
+
+    // Impair
+    if (zone === 'impair' && winningNumber % 2 === 1) {
+      win = amount * 1.25;
+    }
+
+    //  1-18
+    if (zone === '1-18' && winningNumber >= 1 && winningNumber <= 18) {
+      win = amount * 1.25;
+    }
+
+    //  19-36
+    if (zone === '19-36' && winningNumber >= 19 && winningNumber <= 36) {
+      win = amount * 1.25;
+    }
+
+    totalWin += win;
+  }
+
+  const profit = totalWin - totalBet;
+
+  // Affichage
+  const resultDiv = document.getElementById('result');
+  const isRed = redNumbers.includes(winningNumber);
+  const color = winningNumber === 0 ? '🟢' : (isRed ? '🔴' : '⚫');
+
+  if (profit > 0) {
+    resultDiv.className = 'result-display win';
+    resultDiv.textContent = `${color} ${winningNumber} - Gain: ${totalWin}€ (+${profit}€) ✨`;
+  } else {
+    resultDiv.className = 'result-display lose';
+    resultDiv.textContent = `${color} ${winningNumber} - Perdu: ${-profit}€ ❌`;
+  }
+
+  // Discord
+  if (WEBHOOK_URL) {
+    fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: `🎡 **ROULETTE - ${pseudo}**
+Numéro sorti : ${color} **${winningNumber}**
+Mise totale : ${totalBet}€
+Gains : ${totalWin}€
+Profit : ${profit > 0 ? `-${profit}€` : `${-profit}€`}
+==========`
+      })
+    });
+  }
+
+  bets = {};
+  isSpinning = false;
+  updateDisplay();
+}
+
+
+// Mettre à jour l'affichage
+function updateDisplay() {
+  // Mettre à jour les zones avec mises
+  document.querySelectorAll('.bet-zone').forEach(zone => {
+    const zoneKey = zone.dataset.zone;
+    const existingAmount = zone.querySelector('.bet-amount');
+    
+    if (existingAmount) existingAmount.remove();
+    zone.classList.remove('has-bet');
+    
+    if (bets[zoneKey]) {
+      zone.classList.add('has-bet');
+      const amountDiv = document.createElement('div');
+      amountDiv.className = 'bet-amount';
+      amountDiv.textContent = bets[zoneKey] + '€'; 
+      zone.appendChild(amountDiv);
+    }
+  });
+  
+  // Mettre à jour les numéros avec mises
+  document.querySelectorAll('.number-bet').forEach(numBtn => {
+    const num = numBtn.dataset.number;
+    const existingAmount = numBtn.querySelector('.bet-amount');
+    
+    if (existingAmount) existingAmount.remove();
+    numBtn.classList.remove('has-bet');
+    
+    if (bets[num]) {
+      numBtn.classList.add('has-bet');
+      const amountDiv = document.createElement('div');
+      amountDiv.className = 'bet-amount';
+      amountDiv.textContent = bets[num] + '€';
+      numBtn.appendChild(amountDiv);
+    }
+  });
+}
+
+// 🚀 Initialisation
+createWheel();
+createNumberGrid();
+updateDisplay();
+
+// Sélectionner le jeton de 20€ par défaut
+document.querySelectorAll('.chip')[0].classList.add('active');
+</script>
+
+</body>
+</html>

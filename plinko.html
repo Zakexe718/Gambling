@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 Fictiv Casino - Plinko</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0b0b0b;
+  font-family: 'Segoe UI', sans-serif;
+  color: gold;
+  overflow-x: hidden;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+.game-table {
+  background: linear-gradient(145deg, #161616, #0d0d0d);
+  padding: 30px;
+  border-radius: 30px;
+  margin: 30px auto;
+  max-width: 760px;
+  box-shadow: 0 0 50px rgba(255,215,0,0.25),
+              inset 0 0 30px rgba(0,0,0,0.4);
+}
+
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.player-info input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  color: #000;
+  font-size: 16px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.player-info input::placeholder {
+  color: #999;
+}
+
+.chips {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.chip {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #333;
+  color: gold;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.chip:hover { background: #444; }
+
+.chip.active {
+  background: gold;
+  color: black;
+}
+
+.board-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+#plinkoCanvas {
+  background: radial-gradient(ellipse at 50% 0%, #17170f, #050505 75%);
+  border-radius: 16px;
+  border: 1px solid rgba(255,215,0,0.2);
+  max-width: 100%;
+  height: auto;
+}
+
+.controls {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.btn {
+  flex: 1;
+  padding: 15px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-drop {
+  background: linear-gradient(145deg, gold, #daa520);
+  color: #000;
+}
+
+.btn-drop:hover:not(:disabled) {
+  box-shadow: 0 0 20px rgba(255,215,0,0.6);
+  transform: translateY(-2px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.result-display {
+  text-align: center;
+  margin: 20px 0 10px;
+  font-size: 24px;
+  font-weight: bold;
+  min-height: 34px;
+}
+
+.result-display.win {
+  color: #2ecc71;
+  text-shadow: 0 0 10px #2ecc71;
+}
+
+.result-display.lose {
+  color: #e74c3c;
+}
+
+.bet-info {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #ccc;
+}
+
+.payout-info {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 18px;
+  padding: 14px;
+  background: rgba(255, 215, 0, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  font-size: 12px;
+}
+
+.payout-info .warn { color: #e77; }
+.payout-info .good { color: #7e7; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <nav class="site-nav">
+    <a href="index.html" class="site-nav-logo">🎰 FICTIV CASINO</a>
+    <div class="site-nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="slot-machine.html">Machine à sous</a>
+      <a href="blackjack.html">Blackjack</a>
+      <a href="roulette.html">Roulette</a>
+      <a href="plinko.html" class="is-active">Plinko</a>
+    </div>
+  </nav>
+
+  <h1>⚪ PLINKO ⚪</h1>
+
+  <div class="game-table">
+
+    <div class="player-info">
+      <input type="text" id="pseudo" placeholder="NOM Prénom">
+    </div>
+
+    <div class="result-display" id="result"></div>
+    <div class="bet-info" id="betInfo"></div>
+
+    <div class="chips" id="chipsContainer">
+      <button class="chip" onclick="selectChip(20, this)">20€</button>
+      <button class="chip" onclick="selectChip(50, this)">50€</button>
+      <button class="chip" onclick="selectChip(100, this)">100€</button>
+    </div>
+
+    <div class="board-wrap">
+      <canvas id="plinkoCanvas" width="640" height="600"></canvas>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-drop" id="dropBtn" onclick="dropBall()">⚪ LÂCHER LA BILLE</button>
+    </div>
+
+    <div class="payout-info">
+      <span>Bords : <span class="warn">x0.2 – x0.5</span></span>
+      <span>Milieu : x1 – x3</span>
+      <span>Centre : <span class="good">x10</span></span>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// 🎰 Configuration
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1469794145974620292/RXq214ATrOHYtkb1DagH6D11LkgAbePbJPFsWZ9JP21p0vE9f5Y2DNk7k0fVveM0mqPL";
+
+const canvas = document.getElementById('plinkoCanvas');
+const ctx = canvas.getContext('2d');
+
+const W = canvas.width;
+const H = canvas.height;
+
+// 📐 Disposition du plateau
+const ROWS = 12;
+const TOP_MARGIN = 55;
+const ROW_GAP = 38;
+const COL_GAP = 40;
+const PEG_RADIUS = 3;
+const BALL_RADIUS = 5;
+const BIN_Y = TOP_MARGIN + (ROWS - 1) * ROW_GAP + 30;
+const WALL_LEFT = 26;
+const WALL_RIGHT = W - 26;
+
+// 💰 Multiplicateurs : perte sur les bords, x10 au centre
+const multipliers = [0.2, 0.3, 0.5, 0.8, 1, 1.5, 3, 10, 3, 1.5, 1, 0.8, 0.5, 0.3, 0.2];
+
+// Construire les plots (pyramide qui s'élargit vers le bas)
+let pegs = [];
+let lastRowX = [];
+
+function buildBoard() {
+  pegs = [];
+  for (let r = 0; r < ROWS; r++) {
+    const n = 3 + r;
+    const y = TOP_MARGIN + r * ROW_GAP;
+    const startX = W / 2 - ((n - 1) * COL_GAP) / 2;
+    const rowX = [];
+    for (let i = 0; i < n; i++) {
+      const x = startX + i * COL_GAP;
+      pegs.push({ x, y });
+      rowX.push(x);
+    }
+    if (r === ROWS - 1) lastRowX = rowX;
+  }
+}
+buildBoard();
+
+// 🎨 Dessiner le plateau
+function drawBoard(ballPos) {
+  ctx.clearRect(0, 0, W, H);
+
+  // Plots
+  pegs.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, PEG_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = '#f4c542';
+    ctx.shadowColor = 'rgba(244,197,66,0.6)';
+    ctx.shadowBlur = 6;
+    ctx.fill();
+  });
+  ctx.shadowBlur = 0;
+
+  // Bacs de multiplicateurs
+  const n = lastRowX.length;
+  const boundaries = [WALL_LEFT, ...lastRowX, WALL_RIGHT];
+  for (let i = 0; i <= n; i++) {
+    const x0 = boundaries[i];
+    const x1 = boundaries[i + 1];
+    const mult = multipliers[i];
+    const hue = mult >= 5 ? '#f4c542' : mult >= 1 ? '#4fae66' : '#c0392b';
+    ctx.fillStyle = hue;
+    ctx.fillRect(x0, BIN_Y, x1 - x0 - 2, 26);
+    ctx.fillStyle = '#0b0b0b';
+    ctx.font = 'bold 12px Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('x' + mult, (x0 + x1) / 2, BIN_Y + 17);
+  }
+
+  // Bille
+  if (ballPos) {
+    ctx.beginPath();
+    ctx.arc(ballPos.x, ballPos.y, BALL_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(255,255,255,0.8)';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+drawBoard(null);
+
+// 💰 Mise sélectionnée
+let selectedBet = 20;
+let dropping = false;
+
+function selectChip(amount, element) {
+  if (dropping) return;
+  selectedBet = amount;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  element.classList.add('active');
+}
+
+// 🎯 Déterminer le numéro de bac à partir de la position x
+function binIndexFromX(x) {
+  let idx = 0;
+  for (let px of lastRowX) {
+    if (x >= px) idx++;
+  }
+  return Math.min(Math.max(idx, 0), multipliers.length - 1);
+}
+
+// ⚪ Lâcher la bille (simulation physique simple)
+function dropBall() {
+  const pseudo = document.getElementById('pseudo').value.trim();
+  if (!pseudo) { alert('Entre un pseudo !'); return; }
+  if (!selectedBet) { alert('Sélectionne une mise !'); return; }
+  if (dropping) return;
+
+  dropping = true;
+  document.getElementById('dropBtn').disabled = true;
+  document.getElementById('result').textContent = '';
+  document.getElementById('betInfo').textContent = `Mise : ${selectedBet}€`;
+
+  let ball = {
+    x: W / 2 + (Math.random() * 20 - 10),
+    y: 10,
+    vx: (Math.random() * 2 - 1),
+    vy: 0
+  };
+
+  const gravity = 0.35;
+
+  function step() {
+    ball.vy += gravity;
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    // Collisions avec les plots
+    for (let p of pegs) {
+      const dx = ball.x - p.x;
+      const dy = ball.y - p.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const minDist = PEG_RADIUS + BALL_RADIUS;
+      if (dist < minDist && dist > 0) {
+        const nx = dx / dist;
+        const ny = dy / dist;
+        ball.x = p.x + nx * minDist;
+        ball.y = p.y + ny * minDist;
+        const dot = ball.vx * nx + ball.vy * ny;
+        ball.vx -= 2 * dot * nx;
+        ball.vy -= 2 * dot * ny;
+        ball.vx *= 0.45;
+        ball.vy *= 0.45;
+        ball.vx += (Math.random() - 0.5) * 1.1;
+      }
+    }
+
+    // Murs latéraux
+    if (ball.x < WALL_LEFT) { ball.x = WALL_LEFT; ball.vx *= -0.4; }
+    if (ball.x > WALL_RIGHT) { ball.x = WALL_RIGHT; ball.vx *= -0.4; }
+
+    // Limiter les vitesses
+    ball.vx = Math.max(-5, Math.min(5, ball.vx));
+    ball.vy = Math.max(-4, Math.min(12, ball.vy));
+
+    drawBoard(ball);
+
+    if (ball.y < BIN_Y) {
+      requestAnimationFrame(step);
+    } else {
+      finishDrop(pseudo, binIndexFromX(ball.x));
+    }
+  }
+
+  requestAnimationFrame(step);
+}
+
+// 🏁 Fin de la descente
+function finishDrop(pseudo, binIndex) {
+  const mult = multipliers[binIndex];
+  const gain = Math.round(selectedBet * mult * 100) / 100;
+  const profit = Math.round((gain - selectedBet) * 100) / 100;
+
+  const resultDiv = document.getElementById('result');
+  if (profit > 0) {
+    resultDiv.className = 'result-display win';
+    resultDiv.textContent = `✨ Bac x${mult} — Gain : ${gain}€ (+${profit}€)`;
+  } else if (profit === 0) {
+    resultDiv.className = 'result-display push';
+    resultDiv.textContent = `🤝 Bac x${mult} — Mise remboursée : ${gain}€`;
+  } else {
+    resultDiv.className = 'result-display lose';
+    resultDiv.textContent = `❌ Bac x${mult} — Perdu : ${Math.abs(profit)}€`;
+  }
+
+  if (WEBHOOK_URL) {
+    fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: `⚪ **PLINKO - ${pseudo}**
+Bac atteint : x${mult}
+Mise : ${selectedBet}€
+Gain : ${gain}€
+Profit : ${profit > 0 ? `-${profit}€` : `${Math.abs(profit)}€`}
+==========`
+      })
+    });
+  }
+
+  dropping = false;
+  document.getElementById('dropBtn').disabled = false;
+}
+
+// 🚀 Initialisation
+document.querySelectorAll('.chip')[0].classList.add('active');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎰 Fictiv Casino - Machine à sous</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+.site-nav-wrap { max-width: 460px; margin: 0 auto 16px; }
+body {
+  background: #0b0b0b;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.machine {
+  position: relative;
+  background: linear-gradient(145deg, #111, #1a1a1a);
+  padding: 25px;
+  border-radius: 20px;
+  width: 460px;
+  color: gold;
+  box-shadow: 0 0 30px rgba(255,215,0,0.25);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.reels {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.reel {
+  background: #000;
+  border: 2px solid gold;
+  border-radius: 10px;
+  width: 65px;
+  height: 65px;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bets {
+  display: flex;
+  gap: 10px;
+}
+
+.bet {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #333;
+  color: gold;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.bet.active {
+  background: gold;
+  color: black;
+}
+
+#result {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.win {
+  color: #0f0;
+  text-shadow: 0 0 10px #0f0;
+}
+
+.lose {
+  color: #f00;
+}
+
+/* 🎮 Manette */
+.lever {
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 140px;
+  background: #444;
+  border-radius: 10px;
+}
+
+.lever::after {
+  content: "";
+  position: absolute;
+  top: -25px;
+  left: -15px;
+  width: 50px;
+  height: 50px;
+  background: red;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.lever.pull {
+  transform: translateY(-50%) rotate(10deg);
+}
+</style>
+</head>
+
+<body>
+
+<div class="site-nav-wrap">
+  <nav class="site-nav">
+    <a href="index.html" class="site-nav-logo">🎰 FICTIV CASINO</a>
+    <div class="site-nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="slot-machine.html" class="is-active">Machine à sous</a>
+      <a href="blackjack.html">Blackjack</a>
+      <a href="roulette.html">Roulette</a>
+      <a href="plinko.html">Plinko</a>
+    </div>
+  </nav>
+</div>
+
+<div class="machine">
+  <h1>🎰 MACHINE A SOUS 🎰</h1>
+
+  <input id="pseudo" placeholder="NOM Prénom">
+
+  <div class="reels">
+    <div class="reel">❔</div>
+    <div class="reel">❔</div>
+    <div class="reel">❔</div>
+    <div class="reel">❔</div>
+    <div class="reel">❔</div>
+  </div>
+
+  <div class="bets">
+    <button class="bet" onclick="selectBet(20, this)">20€</button>
+    <button class="bet" onclick="selectBet(50, this)">50€</button>
+    <button class="bet" onclick="selectBet(100, this)">100€</button>
+  </div>
+
+  <div id="result"></div>
+
+  <div class="lever" onclick="pullLever(this)"></div>
+</div>
+
+<script>
+const reels = document.querySelectorAll(".reel");
+
+/* 🎯 Symboles */
+const symbols = ["🍒","🍋","🔔","💎","⭐","7️⃣"];
+
+/* 🧠 Probabilités ULTRA ADDICTIVES - Beaucoup plus de symboles communs */
+const weightedSymbols = [
+  // TRÈS fréquents (petits gains garantis)
+  "🍒","🍒","🍒","🍒","🍒","🍒","🍒","🍒","🍒","🍒","🍒","🍒",
+  "🍋","🍋","🍋","🍋","🍋","🍋","🍋","🍋","🍋","🍋",
+  "🔔","🔔","🔔","🔔","🔔","🔔","🔔","🔔",
+
+  // Rares (pour garder l'espoir)
+  "💎","💎","💎",
+  "⭐","⭐",
+
+  // Ultra rare (jackpot illusoire)
+  "7️⃣"
+];
+
+/* 💰 Multiplicateurs optimisés pour la perte lente */
+const multipliers = {
+  "🍒": 1.1,   // Baissé de 1.25 à 1.1 (perte de 10%)
+  "🍋": 1.15,  // Baissé de 1.3 à 1.15 (perte de 15%)
+  "🔔": 1.2,   // Baissé de 1.5 à 1.2 (perte de 20%)
+  "💎": 1.5,   // Baissé de 1.75 à 1.5
+  "⭐": 2,
+  "7️⃣": 5
+};
+
+/* 🎯 Gains partiels augmentés pour l'effet psychologique */
+const partial = { 
+  2: 0.3,   // 2 symboles identiques = 30% de remboursement
+  3: 0.5,   // 3 symboles identiques = 50% de remboursement  
+  4: 0.8    // 4 symboles identiques = 80% de remboursement
+};
+
+// 👉 Webhook Discord
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1469794145974620292/RXq214ATrOHYtkb1DagH6D11LkgAbePbJPFsWZ9JP21p0vE9f5Y2DNk7k0fVveM0mqPL";
+
+let selectedBet = null;
+let cooldown = false;
+
+function selectBet(amount, btn) {
+  selectedBet = amount;
+  document.querySelectorAll(".bet").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+function pullLever(el) {
+  if (cooldown) return;
+
+  const pseudo = document.getElementById("pseudo").value.trim();
+  if (!pseudo) return alert("Entre un pseudo");
+  if (!selectedBet) return alert("Sélectionne une mise");
+
+  cooldown = true;
+  el.classList.add("pull");
+  document.getElementById("result").innerText = "🎲 ...";
+
+  let spins = 0;
+  const interval = setInterval(() => {
+    reels.forEach(r => {
+      r.innerText = weightedSymbols[Math.floor(Math.random() * weightedSymbols.length)];
+    });
+    spins++;
+    if (spins >= 20) {
+      clearInterval(interval);
+      el.classList.remove("pull");
+      finish(pseudo);
+      setTimeout(() => cooldown = false, 3500);
+    }
+  }, 90);
+}
+
+function finish(pseudo) {
+  let results = [...reels].map(r => r.innerText);
+
+  /* 🎯 BOOST DES PETITS GAINS (45% de chances - équilibré) */
+  if (Math.random() < 0.45) { // Réduit de 60% à 45%
+    const lowSymbols = ["🍒","🍋","🔔"];
+    const forced = lowSymbols[Math.floor(Math.random() * lowSymbols.length)];
+    
+    // Stratégie mixte : soit 5 identiques, soit 4 identiques pour varier
+    const numIdentical = Math.random() < 0.7 ? 5 : 4;
+    
+    if (numIdentical === 5) {
+      results = Array(5).fill(forced);
+      reels.forEach(r => r.innerText = forced);
+    } else {
+      // 4 identiques + 1 différent
+      results = Array(4).fill(forced);
+      results.push(lowSymbols[Math.floor(Math.random() * lowSymbols.length)]);
+      // Mélanger pour ne pas toujours avoir le différent à la fin
+      results.sort(() => Math.random() - 0.5);
+      reels.forEach((r, i) => r.innerText = results[i]);
+    }
+  }
+
+  const counts = {};
+  results.forEach(s => counts[s] = (counts[s] || 0) + 1);
+
+  let multiplier = 0;
+  let winType = "";
+
+  // Vérifier d'abord les 5 symboles identiques
+  for (let s in counts) {
+    if (counts[s] === 5) {
+      multiplier = multipliers[s];
+      winType = "5x";
+      break;
+    }
+  }
+
+  // Sinon, chercher les gains partiels
+  if (multiplier === 0) {
+    const maxSame = Math.max(...Object.values(counts));
+    if (maxSame >= 2) {
+      multiplier = partial[maxSame] || 0;
+      winType = `${maxSame}x`;
+    }
+  }
+
+  const gain = selectedBet * multiplier;
+  const profit = gain - selectedBet;
+  const resultDiv = document.getElementById("result");
+
+  if (gain > selectedBet) {
+    resultDiv.className = "win";
+    resultDiv.innerText = `✨ Gain : ${gain.toFixed(2)}€ (x${multiplier})`;
+  } else if (gain > 0) {
+    resultDiv.className = "win";
+    resultDiv.innerText = `🎰 Gain : ${gain.toFixed(2)}€ (x${multiplier})`;
+  } else {
+    resultDiv.className = "lose";
+    resultDiv.innerText = `❌ Perdu`;
+  }
+
+  if (WEBHOOK_URL) {
+    fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content:
+`🎰 **SLOT MACHINE - ${pseudo}**
+Résultat : ${results.join(" ")}
+Mise : ${selectedBet}€
+Gain : ${gain.toFixed(2)}€
+Profit : ${(selectedBet - gain).toFixed(2)}€
+===========`
+      })
+    });
+  }
+}
+</script>
+
+</body>
+</html>
