@@ -459,14 +459,13 @@ Profit : ${profit > 0 ? `-${profit}€` : `${Math.abs(profit)}€`}
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        content: 
-          '⚪ **PLINKO**'
-          'Compte Discord : @${currentUniqueUsername()}'
-          'Bac atteint : x${mult}'
-          'Gain : ${gain}€ (+${profit}€)'
-          ''
-          'To Play : [fictivcasino.com](https://zakexe718.github.io/Gambling)'
-          '=========='
+        content: `⚪ **PLINKO**
+Compte Discord : @${currentUniqueUsername()}
+Bac atteint : x${mult}
+Gain : ${gain}€ (+${profit}€)
+
+To Play : [fictivcasino.com](https://zakexe718.github.io/Gambling)
+==========`
       })
     });
   }
