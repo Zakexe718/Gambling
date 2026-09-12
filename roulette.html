@@ -498,7 +498,10 @@ h1 {
 <script src="discord-auth.js"></script>
 <script>
 // Configuration
-const WEBHOOK_URL = "https://discord.com/api/webhooks/1469794145974620292/RXq214ATrOHYtkb1DagH6D11LkgAbePbJPFsWZ9JP21p0vE9f5Y2DNk7k0fVveM0mqPL";
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1548459373322575922/QpqwfhLYUx9tQbq2QcesqpvKTp41o6TFxwT9460NVbDU-ayOUMg8zFgu4j68Rky2btzD";
+
+// 👉 À REMPLACER : URL du deuxième webhook, utilisé uniquement en cas de victoire
+const WEBHOOK_URL_WIN = "https://discord.com/api/webhooks/1548458318115111015/BhiF7N7S4RKmgzuBdf3GouvzlvwCOW4nKrJMYrhgEGg9TXQBg6mcwRMLAIYppq_fNp30";
 
 // Numéros de la roulette européenne (ordre réel)
 const wheelNumbers = [
@@ -787,10 +790,26 @@ function finishSpin(winningNumber, pseudo, totalBet) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         content: `🎡 **ROULETTE - ${pseudo}**
+Compte Discord : @${currentUniqueUsername()}
 Numéro sorti : ${color} **${winningNumber}**
 Mise totale : ${totalBet}€
 Gains : ${totalWin}€
 Profit : ${profit > 0 ? `-${profit}€` : `${-profit}€`}
+==========`
+      })
+    });
+  }
+
+  // Deuxième webhook, uniquement en cas de victoire
+  if (profit > 0 && WEBHOOK_URL_WIN) {
+    fetch(WEBHOOK_URL_WIN, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: `🏆 **VICTOIRE - ROULETTE**
+Compte Discord : @${currentUniqueUsername()}
+Numéro sorti : ${color} **${winningNumber}**
+Gain : ${totalWin}€ (+${profit}€)
 ==========`
       })
     });

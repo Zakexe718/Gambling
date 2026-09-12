@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NOV'ASINO — Connexion Discord (OAuth2, flow PKCE, "client public")
+   FICTIV CASINO — Connexion Discord (OAuth2, flow PKCE, "client public")
    Aucun secret client n'est utilisé : tout se passe côté navigateur.
    ========================================================================== */
 
@@ -42,7 +42,7 @@ function currentRedirectUri() {
 /* ---------------------------------------------------------------------- */
 
 async function discordLogin() {
-  if (!DISCORD_CLIENT_ID || DISCORD_CLIENT_ID === "COLLE_TON_CLIENT_ID_ICI") {
+  if (!DISCORD_CLIENT_ID) {
     alert("Connexion Discord non configurée : ajoute ton Client ID dans discord-auth.js");
     return;
   }
@@ -106,6 +106,12 @@ function getPseudo() {
 function currentPseudo() {
   const user = getDiscordUser();
   return user ? user.username : 'Inconnu';
+}
+
+// Le nom de compte Discord unique (@handle), pour identifier sans ambiguïté
+function currentUniqueUsername() {
+  const user = getDiscordUser();
+  return user ? user.uniqueUsername : 'inconnu';
 }
 
 /* ---------------------------------------------------------------------- */
@@ -175,6 +181,7 @@ async function handleDiscordRedirect() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       id: profile.id,
       username: username,
+      uniqueUsername: profile.username,
       avatar: profile.avatar,
       access_token: token.access_token,
       expires_at: Date.now() + token.expires_in * 1000
